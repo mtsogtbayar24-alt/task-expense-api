@@ -33,4 +33,3 @@ spent_at| DATE| NOT NULL
 created_at| TIMESTAMPTZ + DEFAULT now()| NOT NULL
 description| TEXT | 
 category| TEXT | NOT NULL
-
