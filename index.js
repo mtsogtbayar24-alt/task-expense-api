@@ -36,4 +36,21 @@ app.post('/expenses', async(req, res) => {
   }
 });
 
+app.get('/expenses/:id', async (req, res) => {
+  try{
+    const id = Number(req.params.id);
+       if(!Number.isInteger(id) || id <= 0) { 
+        return res.status(400).json({error: '(id > 0) тоо байх шаардлагатай'})
+      }
+    const {rows } = await pool.query('SELECT * FROM expenses WHERE id = $1', [id]);
+    if(rows.length === 0){
+      return res.status(400).json({error: 'id-тай task олдсонгүй. '})
+    }
+    res.status(200).json(rows[0]);
+  } catch(error){
+    console.error(error);
+    res.status(500).json({error: "Query дамжуулахад алдаа гарлаа. "})
+  }
+})
+
 app.listen(3000, ()=> console.log('Listening on 3000'));
