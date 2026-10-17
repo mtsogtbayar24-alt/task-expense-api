@@ -72,7 +72,7 @@ app.get('/expenses/:id', async (req, res) => {
       }
     const {rows } = await pool.query('SELECT * FROM expenses WHERE id = $1', [id]);
     if(rows.length === 0){
-      return res.status(400).json({error: 'No expense found with the specified id.'})
+      return res.status(404).json({error: 'No expense found with the specified id.'})
     }
     res.status(200).json(rows[0]);
   } catch(error){
