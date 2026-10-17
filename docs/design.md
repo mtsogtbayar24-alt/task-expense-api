@@ -25,8 +25,6 @@ GET/expenses/:id
   Буцаана:       id-д тохирсон обьектыг буцаана. 
   Status:        200(олдсон үед). 404 хэрэглэгчийн хайсан id-тай мөр олдохгүй бол, 400 id тоо биш үед (/expenses/abc)
 
-
-
 Багана | Төрөл | Required
 id     | SERIAL PRIMARY KEY | NOT NULL
 amount | NUMERIC(12,2) | NOT NULL
