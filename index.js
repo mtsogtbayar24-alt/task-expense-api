@@ -81,4 +81,4 @@ app.get('/expenses/:id', async (req, res) => {
   }
 })
 
-app.listen(3000, ()=> console.log('Listening on 3000'));
+app.listen(process.env.PORT || 3000, ()=> console.log('Listening on 3000'));
