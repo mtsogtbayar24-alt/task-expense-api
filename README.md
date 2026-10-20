@@ -24,3 +24,7 @@ Tracks user expenses, calculates sums, and filters by category and date. All dat
 curl -s http://localhost:3000/health
 curl -s -X POST http://localhost:3000/expenses -H "Content-Type: application/json" -d '{"title":"Coffee","amount":5000,"category":"food"}'
 curl -s http://localhost:3000/expenses/1
+
+## Live demo
+
+[Open the live demo](https://task-expense-api.onrender.com/)
