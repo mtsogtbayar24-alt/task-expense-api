@@ -1,15 +1,22 @@
 const express = require('express')
 const pool = require('./db');
+const auth = require('./middleware/auth');
+const authRoutes = require('./auth');
 const app = express();
 app.use(express.json());
 app.get('/health', (req, res) => res.json({status: 'ok'}));
 
+app.use('/auth', authRoutes);
 
 
-app.get('/expenses', async (req, res) => {
+
+app.get('/expenses', auth, async (req, res) => {
   const { from, to, category } = req.query;
   const conditions = [];
   const params = [];
+
+  conditions.push(`user_id = $${params.length + 1}`);
+  params.push(req.user.id);
 
   if (from !== undefined) {
     if (typeof from !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(from)) {
@@ -44,14 +51,14 @@ app.get('/expenses', async (req, res) => {
 });
 
 
-app.post('/expenses', async(req, res) => {
+app.post('/expenses', auth, async(req, res) => {
   try{
     const { amount, description, category, spent_at} = req.body; 
 
     if(typeof amount === 'number' && amount > 0 && 
       typeof category === 'string' && category.trim() !== '' && /^\d{4}-\d{2}-\d{2}$/.test(spent_at)){
-        const { rows } = await pool.query( 'INSERT INTO expenses (amount, description, category, spent_at) VALUES ($1,$2,$3,$4) RETURNING *', 
-          [amount, description, category, spent_at])
+        const { rows } = await pool.query( 'INSERT INTO expenses (user_id, amount, description, category, spent_at) VALUES ($1,$2,$3,$4,$5) RETURNING *', 
+          [req.user.id, amount, description, category, spent_at])
           res.status(201).json(rows[0]);
         
   } else {
@@ -64,13 +71,13 @@ app.post('/expenses', async(req, res) => {
   }
 });
 
-app.get('/expenses/:id', async (req, res) => {
+app.get('/expenses/:id', auth, async (req, res) => {
   try{
     const id = Number(req.params.id);
        if(!Number.isInteger(id) || id <= 0) { 
      return res.status(400).json({error: 'id must be a number greater than 0'})
       }
-    const {rows } = await pool.query('SELECT * FROM expenses WHERE id = $1', [id]);
+    const {rows } = await pool.query('SELECT * FROM expenses WHERE id = $1 AND user_id = $2', [id, req.user.id]);
     if(rows.length === 0){
       return res.status(404).json({error: 'No expense found with the specified id.'})
     }
