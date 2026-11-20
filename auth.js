@@ -53,6 +53,7 @@ router.post('/register', async (req, res) => {
     await sendOtp(email, otp);
     return res.status(201).json(result.rows[0]);
   } catch (err) {
+    console.error('Registration failed:', err);
     return res.status(500).json({ error: 'Registration failed' });
   }
 });
@@ -74,6 +75,7 @@ router.post('/verify-otp', async (req, res) => {
     );
     return res.json({ ok: true });
   } catch (err) {
+    console.error('Verification failed:', err);
     return res.status(500).json({ error: 'Verification failed' });
   }
 });
@@ -104,10 +106,10 @@ router.post('/resend-otp', async (req, res) => {
     await sendOtp(email, otp);
     return res.json({ ok: true });
   } catch (err) {
+    console.error('Resend failed:', err);
     return res.status(500).json({ error: 'Resend failed' });
   }
 });
-
 
 router.post('/login', async (req, res) => {
   const { email, password } = req.body || {};
@@ -130,6 +132,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '15m' });
     return res.json({ token });
   } catch (err) {
+    console.error('Login failed:', err);
     return res.status(500).json({ error: 'Login failed' });
   }
 });
