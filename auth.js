@@ -13,19 +13,23 @@ function isEmail(value) {
   return typeof value === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 }
 
-function sendOtp(email, code) {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS },
+async function sendOtp(email, code) {
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Task Expense API <onboarding@resend.dev>',
+      to: email,
+      subject: 'Your Task Expense API verification code',
+      text: `Your verification code is ${code}. It expires in 2 minutes.`,
+    }),
   });
-  return transporter.sendMail({
-    from: process.env.EMAIL_USER,
-    to: email,
-    subject: 'Your Task Expense API verification code',
-    text: `Your verification code is ${code}. It expires in 2 minutes.`,
-  });
+  if (!response.ok) {
+    throw new Error(`Resend error ${response.status}: ${await response.text()}`);
+  }
 }
 
 router.post('/register', async (req, res) => {
@@ -36,7 +40,7 @@ router.post('/register', async (req, res) => {
   if (typeof password !== 'string' || password.length === 0) {
     return res.status(400).json({ error: 'Password is required' });
   }
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!process.env.RESEND_API_KEY) {
     return res.status(500).json({ error: 'Email is not configured' });
   }
   try {
@@ -84,7 +88,7 @@ router.post('/verify-otp', async (req, res) => {
 
 router.post('/resend-otp', async (req, res) => {
   const { email } = req.body || {};
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+  if (!process.env.RESEND_API_KEY) {
     return res.status(500).json({ error: 'Email is not configured' });
   }
   try {
