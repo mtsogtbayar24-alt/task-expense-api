@@ -2,7 +2,6 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
-const nodemailer = require('nodemailer');
 const pool = require('./db');
 
 const router = express.Router();
@@ -144,3 +143,4 @@ router.post('/login', async (req, res) => {
 });
 
 module.exports = router;
+
